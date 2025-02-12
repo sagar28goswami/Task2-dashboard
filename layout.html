@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Movie Collection Dashboard</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    function toggleDarkMode() {
+      document.documentElement.classList.toggle('dark');
+      localStorage.setItem('darkMode', document.documentElement.classList.contains('dark'));
+    }
+    document.addEventListener("DOMContentLoaded", () => {
+      if (localStorage.getItem('darkMode') === 'true') {
+        document.documentElement.classList.add('dark');
+      }
+    });
+  </script>
+</head>
+<body class="bg-gray-100 dark:bg-gray-900 dark:text-white">
+  <div class="flex h-screen">
+    <aside class="w-64 bg-blue-800 p-6 text-white h-full hidden md:block">
+      <h2 class="text-2xl font-semibold mb-6">Movie Dashboard</h2>
+      <nav>
+        <a href="#movies" class="block py-2 px-4 hover:bg-blue-700">Movies</a>
+        <a href="#ratings" class="block py-2 px-4 hover:bg-blue-700">Ratings</a>
+        <a href="#charts" class="block py-2 px-4 hover:bg-blue-700">Statistics</a>
+      </nav>
+    </aside>
+    <main class="flex-1 p-6">
+      <div class="flex justify-between items-center mb-6">
+        <h1 class="text-3xl font-semibold">Movie Collection</h1>
+        <button onclick="toggleDarkMode()" class="bg-blue-600 px-4 py-2 rounded text-white">Dark Mode</button>
+      </div>
+      <input type="text" id="search" class="w-full p-3 rounded mb-4" placeholder="Search Movies..." onkeyup="filterMovies()">
+      <div id="movieGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6"></div>
+      <canvas id="genreChart" class="mt-8"></canvas>
+    </main>
+  </div>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script>
+    const movies = [
+      { title: "Inception", genre: "Action", rating: 5 },
+      { title: "Titanic", genre: "Drama", rating: 4 },
+      { title: "Avengers", genre: "Action", rating: 5 },
+      { title: "Interstellar", genre: "Sci-Fi", rating: 5 },
+      { title: "The Godfather", genre: "Drama", rating: 5 }
+    ];
+    
+    function renderMovies() {
+      document.getElementById("movieGrid").innerHTML = movies.map(movie => `
+        <div class="p-6 bg-white dark:bg-gray-800 rounded shadow">
+          <h3 class="text-xl font-semibold">${movie.title}</h3>
+          <p>${movie.genre} | ${'★'.repeat(movie.rating)}</p>
+        </div>`
+      ).join('');
+    }
+    
+    function filterMovies() {
+      const search = document.getElementById("search").value.toLowerCase();
+      document.getElementById("movieGrid").innerHTML = movies.filter(movie => movie.title.toLowerCase().includes(search)).map(movie => `
+        <div class="p-6 bg-white dark:bg-gray-800 rounded shadow">
+          <h3 class="text-xl font-semibold">${movie.title}</h3>
+          <p>${movie.genre} | ${'★'.repeat(movie.rating)}</p>
+        </div>`
+      ).join('');
+    }
+    
+    renderMovies();
+    
+    new Chart(document.getElementById('genreChart'), {
+      type: 'bar',
+      data: {
+        labels: [...new Set(movies.map(m => m.genre))],
+        datasets: [{
+          label: 'Movies per Genre',
+          data: [...new Set(movies.map(m => m.genre))].map(g => movies.filter(m => m.genre === g).length),
+          backgroundColor: 'rgba(54, 162, 235, 0.6)'
+        }]
+      },
+    });
+  </script>
+</body>
+</html>
